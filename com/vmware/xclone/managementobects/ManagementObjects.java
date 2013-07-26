@@ -1,5 +1,6 @@
 package com.vmware.xclone;
 import com.vmware.vim25.*;
+import com.vmware.xclone.basicops.VCConnection;
 
 import javax.xml.ws.*;
 import javax.xml.ws.soap.SOAPFaultException;
@@ -44,9 +45,22 @@ public class ManagementObjects {
 
 	private List<String> vmList;
 
-	public     ManagementObjects(UserInterface userInterface){
+	public ManagementObjects(UserInterface ui)
+	{
+		try {
+		vcConn = new VCConnection(ui.getVcUrl(), ui.getUserName(), ui.getPassWord());
+		vcConn.connect();
+		
+		vimService = vcConn.getVimService();
+		rootRef = vcConn.getRootRef();
+		propCollectorRef = vcConn.getPropRef();
+		vimPort = vcConn.getVimPort();
+		serviceContent = vcConn.getServiceContent();
 
 		vmList = new ArrayList<String>();
+		} catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 	
 	
@@ -62,12 +76,12 @@ public class ManagementObjects {
 	}
 	  
  
-	public ManagedObjectReference getDatastoreByVM(ManagedObjectReference vmRef)
+	public ManagedObjectReference[] getDatastoreByVM(ManagedObjectReference vmRef)
 	{
-		return getDatastoreByVM(vmRef);
+		return getDataStorebyVMMor(vmRef);
 	}
 
-	public    ManagedObjectReference getVMByName(String vmName)
+	public ManagedObjectReference getVMByName(String vmName)
 	{
 		return getVmByVMname(vmName);
 	}
