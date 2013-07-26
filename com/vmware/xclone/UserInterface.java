@@ -27,7 +27,8 @@ import javax.xml.ws.soap.SOAPFaultException;
  *vmname         [required] : Name of the virtual machine
  *cloneprefix    [required] : prefix of the cloned virtual machine
  *number         [required] : the number of cloned virtual machines
- *targethosts    [optional] : the listed host ips (seperate by comma, default: all listed hosts)
+ *srchosts       [required] : the Ip of src host
+ *dsthosts       [required] : the Ip of all dst hosts
  *acceptlinked   [optional] : Whether accept Linked clone (default: True)
  *isOn           [optional] : Whether Power on the VM after cloning (default: True)
  *algthselect    [optional] : select which algorithm to deploy the VMs [0 | 1 | 2| 3| ...] and default: 0
@@ -47,10 +48,19 @@ private	String dataCenter;
 private	String vmPath;
 private String vmClonePrefix;
 private int numberOfVMs;
-private List<String> targetHosts;
+private List<String> srcHostList;
+private List<String> dstHostList;
 private Boolean acceptLinked;
 private Boolean isOn;
 private int algthSelect;
+private static UserInterface instance = null;
+
+static UserInterface getInstance(String[] args){
+	if (instance==null){
+		instance = new UserInterface(args);
+	}
+	return instance;
+}
 
 private void defaultInit() {
 	this.setUserName("root");
@@ -60,7 +70,8 @@ private void defaultInit() {
 	this.setIsOn(true);
 	this.setNumberOfVMs(0);
 	this.setAlgthSelect(0);
-	this.targetHosts = new ArrayList<String>();
+	this.dstHostList = new ArrayList<String>();
+	this.srcHostList = new ArrayList<String>();
 	
 }
 public UserInterface(String[] args) {
@@ -96,11 +107,16 @@ public UserInterface(String[] args) {
                   !val.isEmpty()) {
         	 int number = Integer.parseInt(val);
              this.setNumberOfVMs(number);
-         } else if (param.equalsIgnoreCase("--targethosts") && !val.startsWith("--") &&
+         } else if (param.equalsIgnoreCase("--dsthosts") && !val.startsWith("--") &&
                  !val.isEmpty()) {
         	 String[] hosts = new String[]{}; 
         	 hosts = val.split(",");
-        	 this.setTargetHosts(Arrays.asList(hosts));
+        	 this.setDstHostList(Arrays.asList(hosts));
+         } else if (param.equalsIgnoreCase("--srchosts") && !val.startsWith("--") &&
+                 !val.isEmpty()) {
+        	 String[] hosts = new String[]{}; 
+        	 hosts = val.split(",");
+        	 this.setSrcHostList(Arrays.asList(hosts));
          } else if (param.equalsIgnoreCase("--acceptLinked") && !val.startsWith("--") &&
                  !val.isEmpty()) {
         	 if (val.equalsIgnoreCase("false")) {
@@ -117,9 +133,10 @@ public UserInterface(String[] args) {
     }   
     
     if(this.getVcUrl() == null || this.getVmPath() == null || this.getVmClonePrefix() == null ||
-       this.getNumberOfVMs() == 0) {
+       this.getNumberOfVMs() == 0 || this.getDstHostList() == null || this.getSrcHostList() == null) 
+    {
        throw new IllegalArgumentException(
-          "Expected --url, --vmname, --cloneprefix, --number arguments.");
+          "Expected --url, --vmname, --cloneprefix, --number, --srchosts, --dsthosts arguments.");
     }	
 }
 
@@ -165,11 +182,18 @@ public int getNumberOfVMs() {
 public void setNumberOfVMs(int numberOfVMs) {
 	this.numberOfVMs = numberOfVMs;
 }
-public List<String> getTargetHosts() {
-	return targetHosts;
+public List<String> getDstHostList() {
+	return dstHostList;
 }
-public void setTargetHosts(List<String> targetHosts) {
-	this.targetHosts = targetHosts;
+public void setDstHostList(List<String> dstHostList) {
+	this.dstHostList = dstHostList;
+}
+
+public List<String> getSrcHostList() {
+	return srcHostList;
+}
+public void setSrcHostList(List<String> srcHostList) {
+	this.srcHostList = srcHostList;
 }
 public Boolean getAcceptLinked() {
 	return acceptLinked;
