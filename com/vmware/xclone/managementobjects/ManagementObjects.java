@@ -1,4 +1,4 @@
-package com.vmware.xclone;
+package com.vmware.xclone.managementobjects;
 import com.vmware.vim25.*;
 import com.vmware.xclone.basicops.VCConnection;
 
@@ -44,6 +44,76 @@ public class ManagementObjects {
 	private static ServiceContent serviceContent;
 
 	private List<String> vmList;
+
+	public static VCConnection getVcConn() {
+		return vcConn;
+	}
+
+
+	public static void setVcConn(VCConnection vcConn) {
+		ManagementObjects.vcConn = vcConn;
+	}
+
+
+	public static ManagedObjectReference getPropCollectorRef() {
+		return propCollectorRef;
+	}
+
+
+	public static void setPropCollectorRef(ManagedObjectReference propCollectorRef) {
+		ManagementObjects.propCollectorRef = propCollectorRef;
+	}
+
+
+	public static ManagedObjectReference getRootRef() {
+		return rootRef;
+	}
+
+
+	public static void setRootRef(ManagedObjectReference rootRef) {
+		ManagementObjects.rootRef = rootRef;
+	}
+
+
+	public static VimService getVimService() {
+		return vimService;
+	}
+
+
+	public static void setVimService(VimService vimService) {
+		ManagementObjects.vimService = vimService;
+	}
+
+
+	public static VimPortType getVimPort() {
+		return vimPort;
+	}
+
+
+	public static void setVimPort(VimPortType vimPort) {
+		ManagementObjects.vimPort = vimPort;
+	}
+
+
+	public static ServiceContent getServiceContent() {
+		return serviceContent;
+	}
+
+
+	public static void setServiceContent(ServiceContent serviceContent) {
+		ManagementObjects.serviceContent = serviceContent;
+	}
+
+
+	public List<String> getVmList() {
+		return vmList;
+	}
+
+
+	public void setVmList(List<String> vmList) {
+		this.vmList = vmList;
+	}
+
 
 	public ManagementObjects(UserInterface ui)
 	{
