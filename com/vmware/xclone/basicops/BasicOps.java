@@ -143,7 +143,7 @@ public class BasicOps
 
 
 
-public class  CloneVM {
+public class CloneVM {
 
 
 	private  ManagedObjectReference propCollectorRef;

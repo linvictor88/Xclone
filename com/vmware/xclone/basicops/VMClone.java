@@ -1094,6 +1094,7 @@ public class VMClone {
 		powerOn = param.isPowerOn();
 	}
 
+/*
 	public static void main(String[] args) {
 
 
@@ -1117,6 +1118,5 @@ public class VMClone {
 		{
 			e.printStackTrace();
 		}
-	}
+	}*/
 }
- 

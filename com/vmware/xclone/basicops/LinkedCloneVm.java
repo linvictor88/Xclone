@@ -1,6 +1,7 @@
 package com.vmware.xclone.basicops;
 
 import com.vmware.xclone.*;
+import com.vmware.xclone.managementobjects.ManagementObjects;
 
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
