@@ -50,7 +50,7 @@ public class TreeDeployVm {
 			for (Map.Entry<String, String> deployStr : srcHostVm.entrySet()) {
 				DeployOneHost deployTask = new DeployOneHost(
 						deployStr.getValue(), dstHostList.get(i), numOfVm,
-						numStart, 0);
+						numStart, false);
 				deployTask.run();
 				i++;
 				numStart += numOfVm;
@@ -71,7 +71,7 @@ public class TreeDeployVm {
 		for (Map.Entry<String, String> deployStr : srcHostVm.entrySet()) {
 			int i = 0;
 			DeployOneHost deployTask = new DeployOneHost(deployStr.getValue(),
-					deployStr.getKey(), numOfVm - 1, i * numOfVm + 1, 1);
+					deployStr.getKey(), numOfVm - 1, i * numOfVm + 1, true);
 			deployTask.run();
 			i++;
 		}
