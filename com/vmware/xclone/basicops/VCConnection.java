@@ -1,4 +1,4 @@
-package com.vmware.xclone.basicops;
+package com.vmware.vm;
 
 import java.net.*;
 import java.util.Map;
@@ -12,9 +12,9 @@ import com.vmware.vim25.ManagedObjectReference;
 import com.vmware.vim25.ServiceContent;
 import com.vmware.vim25.VimPortType;
 import com.vmware.vim25.VimService;
-
 public class VCConnection {
-	private static final ManagedObjectReference SVC_INST_REF = new ManagedObjectReference();
+	 
+ 	private static final ManagedObjectReference SVC_INST_REF = new ManagedObjectReference();
 	private  ManagedObjectReference propCollectorRef;
 	private  ManagedObjectReference rootRef;
 	private  VimService vimService;
@@ -25,6 +25,8 @@ public class VCConnection {
 	private  String userName;
 	private  String password;
 	private  boolean isConnected;
+	
+	private Context context;
 	
 	private static String[] meTree = {
 		"ManagedEntity",
@@ -41,13 +43,13 @@ public class VCConnection {
 		"ComputeResource",
 		"ClusterComputeResource"
 	};
-
+	
 	private static String[] hcTree = {
 		"HistoryCollector",
 		"EventHistoryCollector",
 		"TaskHistoryCollector"
 	};
-	
+
 	public VCConnection(String url, String uname,String passwd )
 	{
 		this.url = url;
@@ -55,7 +57,10 @@ public class VCConnection {
 		this.password =passwd;
 	}
 	
-	public  void connect() throws Exception {
+	
+	public  void connect()
+			throws Exception {
+
 		HostnameVerifier hv = new HostnameVerifier() {
 			public boolean verify(String urlHostName, SSLSession session) {
 				return true;
@@ -82,7 +87,16 @@ public class VCConnection {
 		isConnected = true;
 
 		propCollectorRef = serviceContent.getPropertyCollector();
+		
+		ManagedObjectReference  tmp = serviceContent.getPropertyCollector();
 		rootRef = serviceContent.getRootFolder();
+		
+		context = new Context();
+		context.setPropCollectorRef(propCollectorRef);
+		context.setRootRef(rootRef);
+		context.setServiceContent(serviceContent);
+		context.setVimPort(vimPort);
+		context.setVimService(vimService);
 	}
  
 	public ServiceContent getServiceContent()
@@ -115,7 +129,7 @@ public class VCConnection {
 	javax.net.ssl.X509TrustManager {
 
 		public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-			return null;
+			return null;//
 		}
 
 		public boolean isServerTrusted(java.security.cert.X509Certificate[] certs) {
@@ -139,7 +153,7 @@ public class VCConnection {
 		}
 	}
 
-	private void trustAllHttpsCertificates() throws Exception {
+	private  void trustAllHttpsCertificates() throws Exception {
 		// Create a trust manager that does not validate certificate chains:
 		javax.net.ssl.TrustManager[] trustAllCerts = new javax.net.ssl.TrustManager[1];
 		javax.net.ssl.TrustManager tm = new TrustAllTrustManager();
@@ -151,10 +165,20 @@ public class VCConnection {
 		javax.net.ssl.HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
 	}
 
-	public void disconnect() throws Exception {
+	public   void disconnect()
+			throws Exception {
 		if (isConnected) {
 			vimPort.logout(serviceContent.getSessionManager());
 		}
 		isConnected = false;
 	}
+
+
+	public Context getContext() {
+		// TODO Auto-generated method stub
+		return context;
+	}
+
+
+
 }
