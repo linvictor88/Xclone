@@ -48,17 +48,14 @@ private	String dataCenter;
 private	String vmPath;
 private String vmClonePrefix;
 private int numberOfVMs;
-private List<String> srcHostList;
+private String srcHost;
 private List<String> dstHostList;
 private Boolean acceptLinked;
 private Boolean isOn;
 private int algthSelect;
 private static UserInterface instance = null;
 
-static UserInterface getInstance(String[] args){
-	if (instance==null){
-		instance = new UserInterface(args);
-	}
+public static UserInterface getInstance(){
 	return instance;
 }
 
@@ -71,7 +68,6 @@ private void defaultInit() {
 	this.setNumberOfVMs(0);
 	this.setAlgthSelect(0);
 	this.dstHostList = new ArrayList<String>();
-	this.srcHostList = new ArrayList<String>();
 	
 }
 public UserInterface(String[] args) {
@@ -114,9 +110,7 @@ public UserInterface(String[] args) {
         	 this.setDstHostList(Arrays.asList(hosts));
          } else if (param.equalsIgnoreCase("--srchosts") && !val.startsWith("--") &&
                  !val.isEmpty()) {
-        	 String[] hosts = new String[]{}; 
-        	 hosts = val.split(",");
-        	 this.setSrcHostList(Arrays.asList(hosts));
+        	 this.setSrcHost(val);
          } else if (param.equalsIgnoreCase("--acceptLinked") && !val.startsWith("--") &&
                  !val.isEmpty()) {
         	 if (val.equalsIgnoreCase("false")) {
@@ -133,7 +127,7 @@ public UserInterface(String[] args) {
     }   
     
     if(this.getVcUrl() == null || this.getVmPath() == null || this.getVmClonePrefix() == null ||
-       this.getNumberOfVMs() == 0 || this.getDstHostList() == null || this.getSrcHostList() == null) 
+       this.getNumberOfVMs() == 0 || this.getDstHostList() == null || this.getSrcHost() == null) 
     {
        throw new IllegalArgumentException(
           "Expected --url, --vmname, --cloneprefix, --number, --srchosts, --dsthosts arguments.");
@@ -189,12 +183,16 @@ public void setDstHostList(List<String> dstHostList) {
 	this.dstHostList = dstHostList;
 }
 
-public List<String> getSrcHostList() {
-	return srcHostList;
+
+
+public String getSrcHost() {
+	return srcHost;
 }
-public void setSrcHostList(List<String> srcHostList) {
-	this.srcHostList = srcHostList;
+
+public void setSrcHost(String srcHost) {
+	this.srcHost = srcHost;
 }
+
 public Boolean getAcceptLinked() {
 	return acceptLinked;
 }
