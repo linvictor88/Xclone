@@ -1,7 +1,7 @@
 package com.vmware.xclone.basicops;
 
 import com.vmware.vim25.*;
-import com.vmware.xclone.Context;
+import com.vmware.xclone.algorithm.Context;
 
 import javax.xml.ws.*;
 import javax.net.ssl.HostnameVerifier;
@@ -117,7 +117,7 @@ public class VMClone {
 	private  boolean powerOn= false;
 
 
-	public VMClone(Context context)
+	public VMClone(com.vmware.xclone.algorithm.Context context)
 	{
 		this.propCollectorRef = context.getPropCollectorRef();
 		this.rootRef = context.getRootRef();

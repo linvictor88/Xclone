@@ -1,7 +1,7 @@
 package com.vmware.xclone.basicops;
 
 import com.vmware.vim25.*;
-import com.vmware.xclone.Context;
+import com.vmware.xclone.algorithm.Context;
 
 import java.util.*;
 

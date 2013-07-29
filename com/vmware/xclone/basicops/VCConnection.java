@@ -1,4 +1,4 @@
-package com.vmware.vm;
+package com.vmware.xclone.basicops;
 
 import java.net.*;
 import java.util.Map;
@@ -12,6 +12,8 @@ import com.vmware.vim25.ManagedObjectReference;
 import com.vmware.vim25.ServiceContent;
 import com.vmware.vim25.VimPortType;
 import com.vmware.vim25.VimService;
+import com.vmware.xclone.algorithm.Context;
+
 public class VCConnection {
 	 
  	private static final ManagedObjectReference SVC_INST_REF = new ManagedObjectReference();

@@ -1,6 +1,8 @@
 package com.vmware.xclone;
 
 import com.vmware.vim25.*;
+import com.vmware.xclone.basicops.BasicOps;
+import com.vmware.xclone.managementobjects.ManagementObjects;
 
 import javax.xml.ws.*;
 import javax.net.ssl.HostnameVerifier;
@@ -16,15 +18,10 @@ import javax.xml.ws.soap.SOAPFaultException;
 
 public class Xclones {
 
-	private UserInterface ui;
-	private ManagementObjects mo;
-	private BasicOps bo;
-	private CloningAlgorithms cAlgorithm;
-
-	private String DeployVMInCluster()
-	{
-		
-	}
+	private static UserInterface ui;
+	private static ManagementObjects mo;
+	private static BasicOps bo;
+	//private static CloningAlgorithms cAlgorithm;
 
 	public static void main(String[] args) {
 		try {

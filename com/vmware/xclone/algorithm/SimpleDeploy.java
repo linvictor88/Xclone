@@ -1,7 +1,8 @@
 package com.vmware.xclone.algorithm;
 
-import com.vmware.xclone.basicops.VCConnection;
-
+import com.vmware.xclone.basicops.CloneParam;
+import com.vmware.xclone.basicops.VCConnection.*;
+import com.vmware.xclone.basicops.VMClone;
 import com.vmware.vim25.ManagedObjectReference;
 import com.vmware.vim25.ServiceContent;
 import com.vmware.vim25.VimPortType;
@@ -90,7 +91,7 @@ public class SimpleDeploy extends Thread{
 
 	private String CreateVMName(){
 		deployedVM++;
-		return "vm" + hostIp +"_dujizhi__"+ String.format("%03d",deployedVM);
+		return "vm" + hostIp +"_jinqinghe_"+ String.format("%03d",deployedVM);
 	}
 
 	public void run(){

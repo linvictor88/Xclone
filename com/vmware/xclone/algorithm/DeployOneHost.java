@@ -1,4 +1,4 @@
-package com.vmware.xclone.CloningAlgorithms;
+package com.vmware.xclone.algorithm;
 
 import java.util.List;
 
