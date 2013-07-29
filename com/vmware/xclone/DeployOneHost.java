@@ -1,5 +1,6 @@
-package com.vmware.vm;
+package com.vmware.xclone;
 
+import com.vmware.xclone.basicops.*;
 import java.util.List;
 
 public class DeployOneHost extends Thread{

@@ -1,5 +1,6 @@
 package com.vmware.xclone.managementobjects;
 import com.vmware.vim25.*;
+import com.vmware.xclone.UserInterface;
 import com.vmware.xclone.basicops.VCConnection;
 
 import javax.xml.ws.*;

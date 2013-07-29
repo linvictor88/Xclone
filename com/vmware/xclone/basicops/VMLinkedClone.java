@@ -1,6 +1,7 @@
-package com.vmware.vm;
+package com.vmware.xclone.basicops;
 
 import com.vmware.vim25.*;
+import com.vmware.xclone.Context;
 
 import java.util.*;
 
@@ -57,12 +58,7 @@ public class VMLinkedClone {
 	private  String snapshotName;
 	private  String desc;
 
-
-
 	private   boolean powerOn= false;
-
-
-
 
 	public VMLinkedClone(Context context)
 	{

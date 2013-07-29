@@ -1,6 +1,7 @@
-package com.vmware.vm;
+package com.vmware.xclone.basicops;
 
 import com.vmware.vim25.*;
+import com.vmware.xclone.Context;
 
 import javax.xml.ws.*;
 import javax.net.ssl.HostnameVerifier;
