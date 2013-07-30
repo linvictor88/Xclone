@@ -17,8 +17,13 @@ import com.vmware.vim25.*;
 public class LinkedCloneVm {
 	// VCConnection vcc, ManagedObjectReference vmMOR, String snapshotName,
 	// ManagementObjects mo, UserInterface ui
-	private static VCConnection lvcc;
-
+	private VCConnection lvcc;
+	private ManagedObjectReference vmMOR;
+	private	String snapshotName;
+	private ManagementObjects mo;
+	private String cloneName; 
+	private String vmName;
+	
 	public void printSoapFaultException(SOAPFaultException sfe) {
 		System.out.println("SOAP Fault -");
 		if (sfe.getFault().hasDetail()) {
@@ -555,17 +560,28 @@ public class LinkedCloneVm {
 		return retVal;
 	}
 
-	public void linkedCloneVM(VCConnection vcc, ManagedObjectReference vmMOR,
-			String snapshotName, ManagementObjects mo, String cloneName, String vmName) {
+
+	
+	public LinkedCloneVm(VCConnection vcc, ManagedObjectReference vmMo,
+			String snapshotName, ManagementObjects mo, String cloneName, String vmName)
+	{
+		this.setLvcc(vcc);
+		this.setCloneName(cloneName);
+		this.setMo(mo);
+		this.setSnapshotName(snapshotName);
+		this.setVmMOR(vmMo);
+		this.setVmName(vmName);
+	}
+	
+	public void linkedCloneVM() {
 		try {
-			lvcc = vcc;
 
 			if (vmMOR != null) {
 				ManagedObjectReference snapMOR = getSnapshotReference(vmMOR,
 						snapshotName);
 
 				if (snapMOR == null)
-					if (!createSnapshot(vcc, vmMOR, snapshotName)) {
+					if (!createSnapshot(lvcc, vmMOR, snapshotName)) {
 						System.out.println("create snapshot failed");
 						return;
 					}
@@ -646,4 +662,53 @@ public class LinkedCloneVm {
 			e.printStackTrace();
 		}
 	}
+	public VCConnection getLvcc() {
+		return lvcc;
+	}
+
+	public void setLvcc(VCConnection lvcc) {
+		this.lvcc = lvcc;
+	}
+
+	public ManagedObjectReference getVmMOR() {
+		return vmMOR;
+	}
+
+	public void setVmMOR(ManagedObjectReference vmMOR) {
+		this.vmMOR = vmMOR;
+	}
+
+	public String getSnapshotName() {
+		return snapshotName;
+	}
+
+	public void setSnapshotName(String snapshotName) {
+		this.snapshotName = snapshotName;
+	}
+
+	public ManagementObjects getMo() {
+		return mo;
+	}
+
+	public void setMo(ManagementObjects mo) {
+		this.mo = mo;
+	}
+
+	public String getCloneName() {
+		return cloneName;
+	}
+
+	public void setCloneName(String cloneName) {
+		this.cloneName = cloneName;
+	}
+
+	public String getVmName() {
+		return vmName;
+	}
+
+	public void setVmName(String vmName) {
+		this.vmName = vmName;
+	}
+
+
 }

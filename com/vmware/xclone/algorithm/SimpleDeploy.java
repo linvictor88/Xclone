@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.vmware.xclone.UserInterface;
+
 public class SimpleDeploy {
 	private String srcHost;
 	private String srcVMName;
@@ -16,14 +18,13 @@ public class SimpleDeploy {
 		return prefix + String.format("%03d", numth);
 	}
 	
-	public SimpleDeploy(String srcHost, ArrayList<String> dstList,
-			String srcVmPath, int num, String prefix) {
-		this.srcHost = srcHost;
-		this.srcVMName = srcVmPath;
-		this.hostVMList.put(srcHost, srcVMName);
-		this.dstHostList = new ArrayList<String>(dstList);
-		this.numOfVm = num;
-		this.prefix = prefix;
+	public SimpleDeploy(UserInterface ui) {
+		this.srcHost = ui.getSrcHost();
+		this.srcVMName = ui.getVmPath();
+		this.hostVMList.put(ui.getSrcHost(), ui.getVmPath());
+		this.dstHostList = new ArrayList<String>(ui.getDstHostList());
+		this.numOfVm = ui.getNumberOfVMs()/ui.getDstHostList().size();
+		this.prefix = ui.getVmClonePrefix();
 	}
 
 	public void run() {
@@ -38,7 +39,7 @@ public class SimpleDeploy {
 													dstHostList.get(i), 
 													numPerHost - 1,
 													numStart, 
-													true);
+													true,null);
 				linkedClone.start();
 			} else {
 				DeployOneHost fullClone = new DeployOneHost(
@@ -46,7 +47,7 @@ public class SimpleDeploy {
 													dstHostList.get(i), 
 													1,
 													numStart, 
-													false);
+													false,null);
 				hostVMList.put(dstHostList.get(i), CreateVMName(numStart));
 				fullClone.start();
 				try {
@@ -56,8 +57,8 @@ public class SimpleDeploy {
 													dstHostList.get(i),
 													numPerHost - 1,
 													numStart + 1,
-													true);
-					linkedClone.start();
+													true, null);
+					linkedClone.run();
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

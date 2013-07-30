@@ -2,8 +2,8 @@ package com.vmware.xclone.algorithm;
 
 import java.util.List;
 
-import javax.naming.Context;
-
+import com.sun.jndi.url.corbaname.corbanameURLContextFactory;
+import com.sun.org.apache.xpath.internal.axes.SelfIteratorNoPredicate;
 import com.vmware.xclone.basicops.CloneParam;
 import com.vmware.xclone.basicops.VCConnection;
 import com.vmware.vim25.*;
@@ -16,6 +16,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.rmi.RemoteException;
@@ -23,19 +24,92 @@ import java.rmi.server.UID;
 
 import javax.xml.ws.soap.SOAPFaultException;
 
-import com.vmware.xclone.UserInterface;
+import com.vmware.xclone.*;
+
 import com.vmware.xclone.basicops.*;
 
 public class DeployOneHost extends Thread {
 	private String srcVMName;
-	private String dstHostIp1;
+
+	private String dstHostIp;
 	private int numToDeploy;
 	private int numStart;
 	private int deployedVM = 0;
 	private Context context;
 	private UserInterface ui;
-	private Boolean isLinked;
+	private boolean isLinked;
 
+	private CountDownLatch latch;
+	private VCConnection conn;
+
+	public DeployOneHost(String srcVMName, String dstHostIp, int numToDeploy,
+			int numStart, boolean isLinked, CountDownLatch latch) {
+
+		ui = UserInterface.getInstance(null);
+		setUi(ui);
+		setSrcVMName(srcVMName);
+		setDstHostIp(dstHostIp);
+		setNumToDeploy(numToDeploy);
+		setNumStart(numStart);
+		setIsLinked(isLinked);
+		this.latch = latch;
+
+		try {
+			conn = new VCConnection(ui.getVcUrl(), ui.getUserName(),
+					ui.getPassWord());
+
+			conn.connect();
+
+			this.setContext(conn.getContext());
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void run() {
+
+		ManagementObjects managementObject = new ManagementObjects(ui, conn);
+
+		if (getIsLinked() == false) {
+			try {
+				// CloneParam param = new CloneParam();
+				// param.setDataCenter("Datacenter");
+				// param.setResPool("cluster");
+				// String firstVM = CreateVMName();
+				// param.setCloneName(firstVM);
+				// // Todo(Qinghe Jin: need to get datastore by hostip)
+				//
+				// param.setTargetIp(getDstHostIp());
+				// String VmPath = ui.getDataCenter() + "/vm/" + getSrcVMName();
+				// param.setVmPath(VmPath);
+				// ToDo(linb): wheter it is a templat vm
+
+
+				List<String> names = managementObject
+						.getDatastoreNameByHostIp(dstHostIp);
+
+				new CloneVM(srcVMName, CreateVMName(), dstHostIp, names.get(2),
+						ui.getResourcePool(),ui.getDataCenter(), ui.getIsOn(), conn,managementObject).doClone();
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else {
+
+			String vmName = srcVMName.split("/")[2];
+			for (int i = 0; i < getNumToDeploy(); i++) {
+				LinkedCloneVm linkedVm = new LinkedCloneVm(conn,
+						managementObject.getVMByName(vmName), "snapshot",
+						managementObject, CreateVMName(), vmName);
+				linkedVm.linkedCloneVM();
+			}
+
+		}
+		
+		latch.countDown();
+		
+	}
 
 	public Boolean getIsLinked() {
 		return isLinked;
@@ -54,11 +128,11 @@ public class DeployOneHost extends Thread {
 	}
 
 	public String getDstHostIp() {
-		return dstHostIp1;
+		return dstHostIp;
 	}
 
 	public void setDstHostIp(String dstHostIp) {
-		this.dstHostIp1 = dstHostIp;
+		this.dstHostIp = dstHostIp;
 	}
 
 	public int getNumToDeploy() {
@@ -93,12 +167,12 @@ public class DeployOneHost extends Thread {
 		this.context = context;
 	}
 
-	public String getDstHostIp1() {
-		return dstHostIp1;
+	public String getdstHostIp() {
+		return dstHostIp;
 	}
 
-	public void setDstHostIp1(String dstHostIp1) {
-		this.dstHostIp1 = dstHostIp1;
+	public void setdstHostIp(String dstHostIp) {
+		this.dstHostIp = dstHostIp;
 	}
 
 	public UserInterface getUi() {
@@ -109,77 +183,9 @@ public class DeployOneHost extends Thread {
 		this.ui = ui;
 	}
 
-	public DeployOneHost(String srcVMName, String dstHostIp,
-			int numToDeploy, int numStart, Boolean isLinked) {
-
-		ui = UserInterface.getInstance();
-		setUi(ui);
-		setSrcVMName(srcVMName);
-		setDstHostIp(dstHostIp);
-		setNumToDeploy(numToDeploy);
-		setNumStart(numStart);
-		setDeployedVM(0);
-		setIsLinked(isLinked);
-
-		try {
-			VCConnection conn = new VCConnection(ui.getVcUrl(),
-					ui.getUserName(), ui.getPassWord());
-
-			conn.connect();
-
-			self.setContext(conn.getContext());
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void run() {
-
-		if (getIsLinked() == false) {
-			try {
-				CloneParam param = new CloneParam();
-				param.setDataCenter("Datacenter");
-				param.setResPool("cluster");
-				String firstVM = CreateVMName();
-				param.setCloneName(firstVM);
-				// Todo(Qinghe Jin: need to get datastore by hostip)
-
-				param.setTargetIp(getDstHostIp());
-				String VmPath = ui.getDataCenter() + "/vm/" + getSrcVMName();
-				param.setVmPath(VmPath);
-				// ToDo(linb): wheter it is a templat vm
-
-				VMClone t = new VMClone(getContext());
-				t.setParam(param);
-				List<String> names = t.getDataStore(getDstHostIp());
-				param.setTargetDs(names.get(2));
-
-				new VMClone(context).cloneVM(param);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		} else {
-			LinkedParam linkedParam = new LinkedParam();
-			linkedParam.setVmName(srcVMName);
-			linkedParam.setDataCenter(ui.getDataCenter());
-			linkedParam.setDesc("linked clone on " + getDstHostIp());
-			linkedParam.setSnapshotName("snapshotOn__" + getDstHostIp());
-			if (ui.getIsOn() == true) {
-				linkedParam.setPowerOn(true);
-			}
-			for (int i = 0; i < getNumToDeploy(); i++) {
-				linkedParam.setCloneName(CreateVMName());
-				VMLinkedClone linkedClone = new VMLinkedClone(context);
-				linkedClone.linkedCloneVM(linkedParam);
-			}
-
-		}
-	}
-
 	private String CreateVMName() {
-		deployedVM++;
 		int numth = deployedVM + numStart;
+		deployedVM++;
 		return ui.getVmClonePrefix() + String.format("%03d", numth);
 	}
 

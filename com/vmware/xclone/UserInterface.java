@@ -1,5 +1,6 @@
 package com.vmware.xclone;
 import com.vmware.vim25.*;
+import com.vmware.xclone.managementobjects.ManagementObjects;
 
 import javax.xml.ws.*;
 import javax.net.ssl.HostnameVerifier;
@@ -45,6 +46,7 @@ private String vcUrl;
 private	String userName;
 private	String passWord;
 private	String dataCenter;
+private String resourcePool;
 private	String vmPath;
 private String vmClonePrefix;
 private int numberOfVMs;
@@ -55,14 +57,30 @@ private Boolean isOn;
 private int algthSelect;
 private static UserInterface instance = null;
 
-public static UserInterface getInstance(){
+ 
+
+private final static Object syncLock = new Object();  
+
+public  static UserInterface getInstance(String[] args)
+{
+
+	if (instance == null) {  
+		synchronized (syncLock) {  
+			if (instance == null) {  
+				instance = new UserInterface(args);  
+			}  
+		}  
+	}  
+
 	return instance;
-}
+} 
+
 
 private void defaultInit() {
 	this.setUserName("root");
 	this.setPassWord("vmware");
 	this.setDataCenter("Datacenter");
+	this.setResourcePool("cluster");
 	this.setAcceptLinked(true);
 	this.setIsOn(true);
 	this.setNumberOfVMs(0);
@@ -72,6 +90,12 @@ private void defaultInit() {
 }
 public UserInterface(String[] args) {
 	
+	
+	/**		    String inputString = "Input example: --url 10.117.4.228 --username root --password vmware "
+		    		+ "--datacentername Datacenter --vmname vm_clone --cloneprefix _clone_ "
+		    		+ "--resourcepool cluster"
+		    		+ "--number 20 --dsthosts 10.117.4.14,10.117.4.140 --srchost 10.117.4.140 --acceptlinked true "
+		    		+ "--ison true --algthselect 1";**/
     int ai = 0;
     String param = "";
     String val = "";
@@ -82,7 +106,8 @@ public UserInterface(String[] args) {
        }
        if (param.equalsIgnoreCase("--url") && !val.startsWith("--") &&
                !val.isEmpty()) {
-             this.setVcUrl(val);
+      	     String url = "https://" + val + "/sdk";
+             this.setVcUrl(url);
          } else if (param.equalsIgnoreCase("--username") && !val.startsWith("--") &&
                !val.isEmpty()) {
         	 this.setUserName(val);
@@ -92,10 +117,13 @@ public UserInterface(String[] args) {
          } else if (param.equalsIgnoreCase("--datacentername") && !val.startsWith("--") &&
                !val.isEmpty()) {
         	 this.setDataCenter(val);
+         } else if (param.equalsIgnoreCase("--resourcepool") && !val.startsWith("--") &&
+        		 !val.isEmpty()) {
+        	this.setResourcePool(val); 
          } else if (param.equalsIgnoreCase("--vmname") &&
                !val.startsWith("--") && !val.isEmpty()) {
-        	 String vmPath = "https://" + val + "/sdk";
-        	 this.setVmPath(vmPath);
+        	 String path = this.getDataCenter() + "/vm/" + val;
+        	 this.setVmPath(path);
          } else if (param.equalsIgnoreCase("--cloneprefix") && !val.startsWith("--") &&
                !val.isEmpty()) {
              this.setVmClonePrefix(val);
@@ -108,25 +136,32 @@ public UserInterface(String[] args) {
         	 String[] hosts = new String[]{}; 
         	 hosts = val.split(",");
         	 this.setDstHostList(Arrays.asList(hosts));
-         } else if (param.equalsIgnoreCase("--srchosts") && !val.startsWith("--") &&
+         } else if (param.equalsIgnoreCase("--srchost") && !val.startsWith("--") &&
                  !val.isEmpty()) {
         	 this.setSrcHost(val);
          } else if (param.equalsIgnoreCase("--acceptLinked") && !val.startsWith("--") &&
                  !val.isEmpty()) {
         	 if (val.equalsIgnoreCase("false")) {
         		 this.setAcceptLinked(false);
+        	 } else{
+        		 this.setAcceptLinked(true);
         	 }
          } else if (param.equalsIgnoreCase("--ison") && !val.startsWith("--") &&
                  !val.isEmpty()) {
         	 if (val.equalsIgnoreCase("false")) {
         		 this.setIsOn(false);
+        	 }else{
+        		 this.setIsOn(true);
         	 }
+         }else if (param.equalsIgnoreCase("--algthselect") && !val.startsWith("--") &&
+                 !val.isEmpty()) {
+        	 this.setAlgthSelect(Integer.parseInt(val));
          }
        val = "";
        ai += 2;
     }   
     
-    if(this.getVcUrl() == null || this.getVmPath() == null || this.getVmClonePrefix() == null ||
+    if(this.getVcUrl() == null || this.getVmPath() == null || this.getVmClonePrefix() == null || this.getResourcePool()==null ||
        this.getNumberOfVMs() == 0 || this.getDstHostList() == null || this.getSrcHost() == null) 
     {
        throw new IllegalArgumentException(
@@ -210,6 +245,14 @@ public int getAlgthSelect() {
 }
 public void setAlgthSelect(int algthSelect) {
 	this.algthSelect = algthSelect;
+}
+
+public String getResourcePool() {
+	return resourcePool;
+}
+
+public void setResourcePool(String resourcePool) {
+	this.resourcePool = resourcePool;
 }
 }
 

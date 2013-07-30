@@ -1,8 +1,7 @@
 package com.vmware.xclone;
 
 import com.vmware.vim25.*;
-import com.vmware.xclone.basicops.BasicOps;
-import com.vmware.xclone.managementobjects.ManagementObjects;
+import com.vmware.xclone.algorithm.*;
 
 import javax.xml.ws.*;
 import javax.net.ssl.HostnameVerifier;
@@ -17,31 +16,46 @@ import java.rmi.RemoteException;
 import javax.xml.ws.soap.SOAPFaultException;
 
 public class Xclones {
+	private UserInterface ui; 
+    
+	public UserInterface getUi() {
+		return ui;
+	}
 
-	private static UserInterface ui;
-	private static ManagementObjects mo;
-	private static BasicOps bo;
-	//private static CloningAlgorithms cAlgorithm;
+	public void setUi(UserInterface ui) {
+		this.ui = ui;
+	}
+
+
+	public Xclones(UserInterface ui)
+	{
+		this.setUi(ui);
+	}
 
 	public static void main(String[] args) {
 		try {
-			String initMsg = ui.initParams(args);
-			if (initMsg== null) {
-				vmStatus status = new vmStatus(mo.vmClonedList);
-				status.run();
-				
-				String deployMsg = DeployVMInCluster();
-				if (deployMsg != null) {
-					//return error msg to UI
+			//private static CloningAlgorithms cAlgorithm;
+		    String inputString = "Input example: --url 10.117.4.228 --username root --password vmware "
+		    		+ "--datacentername Datacenter --vmname vm_clone --cloneprefix clone_ "
+		    		+ "--resourcepool cluster "
+		    		+ "--number 100 --dsthosts 10.117.4.71,10.117.5.148,10.117.7.125,10.117.4.140,10.117.5.78,10.117.4.14 --srchost 10.117.4.140 --acceptlinked true "
+		    		+ "--ison false --algthselect 1";
+		    String[] Params = inputString.split("\\s+");
+		    UserInterface ui = UserInterface.getInstance(Params);
 
-				} else {
-					//return OK
-				}
-			} esle {
-				// send error msg to UI
-
+			switch(ui.getAlgthSelect())
+			{
+				case 1: 
+					TreeDeployVm deployVm = new TreeDeployVm(ui);
+					deployVm.DeployVmFromList();
+					break;
+				case 2:
+					SimpleDeploy sdeployVm = new SimpleDeploy(ui);
+					sdeployVm.run();
+					break;
+				default:
+					System.out.println("Stupid Boy,  you Exceed our alg selection!");
 			}
-
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
