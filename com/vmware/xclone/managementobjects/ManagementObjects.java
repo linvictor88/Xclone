@@ -1,7 +1,5 @@
-package com.vmware.xclone.managementobjects;
+package com.vmware.xclone.managementobject;
 import com.vmware.vim25.*;
-import com.vmware.xclone.UserInterface;
-import com.vmware.xclone.basicops.VCConnection;
 
 import javax.xml.ws.*;
 import javax.xml.ws.soap.SOAPFaultException;
@@ -14,9 +12,9 @@ import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.rmi.RemoteException;
 
+import com.vmware.xclone.basicops.*;
 
-import java.util.*;
-
+ 
 public class ManagementObjects {
 
 
@@ -25,13 +23,28 @@ public class ManagementObjects {
 	//get the dataStore 
 	//private static Map<String,String> dataStoreList; //name->Object map
 	//private static Map<String,ManagedObjectReference> vmList; //name->Object map
-
-
-
 	//private static String vmClonePrefix;
 
 	//	private static  String vmName;
-
+	private static String[] meTree = {
+		"ManagedEntity",
+		"ComputeResource",
+		"ClusterComputeResource",
+		"Datacenter",
+		"Folder",
+		"HostSystem",
+		"ResourcePool",
+		"VirtualMachine"
+	};
+	private static String[] crTree = {
+		"ComputeResource",
+		"ClusterComputeResource"
+	};
+	private static String[] hcTree = {
+		"HistoryCollector",
+		"EventHistoryCollector",
+		"TaskHistoryCollector"
+	};
 	private static VCConnection vcConn;
 
 	private static  ManagedObjectReference propCollectorRef;
@@ -41,87 +54,41 @@ public class ManagementObjects {
 	private static  VimService vimService;
 
 	private static  VimPortType vimPort;
-
 	private static ServiceContent serviceContent;
-
 	private List<String> vmList;
-
-	public static VCConnection getVcConn() {
-		return vcConn;
+	
+	
+	private static  ManagementObjects managementObject=null;
+	
+	
+	
+    private final static Object syncLock = new Object();  
+	
+	public  static ManagementObjects getInstance(UserInterface ui)
+	{
+		 
+		  if (managementObject == null) {  
+	            synchronized (syncLock) {  
+	                if (managementObject == null) {  
+	                	managementObject = new ManagementObjects(ui);  
+	                }  
+	            }  
+	        }  
+	         
+  		return managementObject;
+	} 
+	
+	public  static ManagementObjects getInstance()
+	{
+  		return managementObject;
 	}
 
-
-	public static void setVcConn(VCConnection vcConn) {
-		ManagementObjects.vcConn = vcConn;
-	}
-
-
-	public static ManagedObjectReference getPropCollectorRef() {
-		return propCollectorRef;
-	}
-
-
-	public static void setPropCollectorRef(ManagedObjectReference propCollectorRef) {
-		ManagementObjects.propCollectorRef = propCollectorRef;
-	}
-
-
-	public static ManagedObjectReference getRootRef() {
-		return rootRef;
-	}
-
-
-	public static void setRootRef(ManagedObjectReference rootRef) {
-		ManagementObjects.rootRef = rootRef;
-	}
-
-
-	public static VimService getVimService() {
-		return vimService;
-	}
-
-
-	public static void setVimService(VimService vimService) {
-		ManagementObjects.vimService = vimService;
-	}
-
-
-	public static VimPortType getVimPort() {
-		return vimPort;
-	}
-
-
-	public static void setVimPort(VimPortType vimPort) {
-		ManagementObjects.vimPort = vimPort;
-	}
-
-
-	public static ServiceContent getServiceContent() {
-		return serviceContent;
-	}
-
-
-	public static void setServiceContent(ServiceContent serviceContent) {
-		ManagementObjects.serviceContent = serviceContent;
-	}
-
-
-	public List<String> getVmList() {
-		return vmList;
-	}
-
-
-	public void setVmList(List<String> vmList) {
-		this.vmList = vmList;
-	}
-
-
-	public ManagementObjects(UserInterface ui)
+	private ManagementObjects(UserInterface ui)
 	{
 		try {
 		vcConn = new VCConnection(ui.getVcUrl(), ui.getUserName(), ui.getPassWord());
 		vcConn.connect();
-		
+
 		vimService = vcConn.getVimService();
 		rootRef = vcConn.getRootRef();
 		propCollectorRef = vcConn.getPropRef();
@@ -135,6 +102,24 @@ public class ManagementObjects {
 	}
 	
 	
+	
+	public void setConn(VCConnection vcconn)
+	{
+		if(vcconn==null)
+		{
+			System.out.println("the connection object is null.");
+			return;
+		}
+		
+		this.vcConn = vcconn;
+		
+		
+	}
+	
+	
+ 
+	
+	
 	public void addClonedList(String vmName)
 	{
 		vmList.add(vmName);
@@ -145,14 +130,225 @@ public class ManagementObjects {
 	{
 		return vmList;
 	}
-	  
+	 
  
-	public ManagedObjectReference[] getDatastoreByVM(ManagedObjectReference vmRef)
+	public  VirtualMachineCloneSpec  getCloneSpec(String targetIp,String vmPathName,String targetPool,boolean powerOn,boolean template)
 	{
-		return getDataStorebyVMMor(vmRef);
+		VirtualMachineCloneSpec cloneSpec = new VirtualMachineCloneSpec();
+
+		try
+		{
+			//	InetAddress addr = InetAddress.getByName( VMClone.targetIp);
+
+			VirtualMachineRelocateSpec relocSpec = new VirtualMachineRelocateSpec();
+
+			cloneSpec.setLocation(relocSpec);
+			cloneSpec.setPowerOn(true);
+			cloneSpec.setTemplate(false);
+
+			if(targetIp!=null&&!(targetIp.equals("")))
+			{
+				ManagedObjectReference  hostRef  =managementObject.getHostByIp(targetIp);
+				ManagedObjectReference vmRef = managementObject.getVMByPathname(vmPathName);
+				ManagedObjectReference datastoreRef = managementObject.getDatastoreByVM(vmRef);
+				ManagedObjectReference resPoolRef = managementObject.getRespool( targetPool);
+				relocSpec.setHost(hostRef);
+				relocSpec.setDatastore(vmRef);
+				relocSpec.setPool(resPoolRef);
+			}
+
+
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+
+			return null;
+		}
+
+		return cloneSpec;
 	}
 
-	public ManagedObjectReference getVMByName(String vmName)
+	public ManagedObjectReference getRespool(String resPoolName)
+	{
+		try
+		{
+		  return getDecendentMoRef(null, "ResourcePool", resPoolName);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return null;
+		
+	}
+	
+	
+	
+	public ManagedObjectReference getVMByPathname(String vmPathName)
+	{
+		if(vmPathName==null||vmPathName.equals(""))
+			return null;
+		
+ 		try
+		{
+			 return vimPort.findByInventoryPath(serviceContent.getSearchIndex(), vmPathName);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return null;
+	}
+	private   List<PropertySpec> buildPropertySpecArray(String[][] typeinfo) {
+		// Eliminate duplicates
+		HashMap<String, Set> tInfo = new HashMap<String, Set>();
+		for(int ti = 0; ti < typeinfo.length; ++ti) {
+			Set props = (Set) tInfo.get(typeinfo[ti][0]);
+			if(props == null) {
+				props = new HashSet<String>();
+				tInfo.put(typeinfo[ti][0], props);
+			}
+			boolean typeSkipped = false;
+			for(int pi = 0; pi < typeinfo[ti].length; ++pi) {
+				String prop = typeinfo[ti][pi];
+				if(typeSkipped) {
+					props.add(prop);
+				} else {
+					typeSkipped = true;
+				}
+			}
+		}
+
+		// Create PropertySpecs
+		ArrayList<PropertySpec> pSpecs = new ArrayList<PropertySpec>();
+		for(Iterator<String> ki = tInfo.keySet().iterator(); ki.hasNext();) {
+			String type = (String) ki.next();
+			PropertySpec pSpec = new PropertySpec();
+			Set props = (Set) tInfo.get(type);
+			pSpec.setType(type);
+			pSpec.setAll(props.isEmpty() ? Boolean.TRUE : Boolean.FALSE);
+			for(Iterator pi = props.iterator(); pi.hasNext();) {
+				String prop = (String) pi.next();
+				pSpec.getPathSet().add(prop);
+			}
+			pSpecs.add(pSpec);
+		}
+
+		return pSpecs;
+	}
+	private  List<ObjectContent>    getContentsRecursively(ManagedObjectReference collector,
+			ManagedObjectReference root,
+			String[][] typeinfo, boolean recurse)
+					throws Exception {
+		if (typeinfo == null || typeinfo.length == 0) {
+			return null;
+		}
+
+		ManagedObjectReference usecoll = collector;
+		if (usecoll == null) {
+			usecoll = serviceContent.getPropertyCollector();
+		}
+
+		ManagedObjectReference useroot = root;
+		if (useroot == null) {
+			useroot = serviceContent.getRootFolder();
+		}
+
+		List<SelectionSpec> selectionSpecs = null;
+		if (recurse) {
+			selectionSpecs = buildFullTraversal();
+		}
+
+		List<PropertySpec> propspecary = buildPropertySpecArray(typeinfo);
+		ObjectSpec objSpec = new ObjectSpec();
+		objSpec.setObj(useroot);
+		objSpec.setSkip(Boolean.FALSE);
+		objSpec.getSelectSet().addAll(selectionSpecs);
+		List<ObjectSpec> objSpecList = new ArrayList<ObjectSpec>();
+		objSpecList.add(objSpec);
+		PropertyFilterSpec spec = new PropertyFilterSpec();
+		spec.getPropSet().addAll(propspecary);
+		spec.getObjectSet().addAll(objSpecList);
+		List<PropertyFilterSpec> listpfs = new ArrayList<PropertyFilterSpec>();
+		listpfs.add(spec);
+		List<ObjectContent> listobjcont = retrievePropertiesAllObjects(listpfs);
+
+		return listobjcont;
+	}
+	private  ManagedObjectReference getDecendentMoRef(ManagedObjectReference root,
+			String type,
+			String name)
+					throws Exception {
+		if (name == null || name.length() == 0) {
+			return null;
+		}
+
+		String[][] typeinfo =
+				new String[][] {new String[] {type, "name"}, };
+
+		List<ObjectContent> ocary =	getContentsRecursively(null, root, typeinfo, true);
+
+		if (ocary == null || ocary.size() == 0) {
+			return null;
+		}
+
+		ObjectContent oc = null;
+		ManagedObjectReference mor = null;
+		List<DynamicProperty> propary = null;
+		String propval = null;
+		boolean found = false;
+		for (int oci = 0; oci < ocary.size() && !found; oci++) {
+			oc = ocary.get(oci);
+			mor = oc.getObj();
+			propary = oc.getPropSet();
+
+			propval = null;
+			if (type == null || typeIsA(type, mor.getType())) {
+				if (propary.size() > 0) {
+					propval = (String) propary.get(0).getVal();
+				}
+				found = propval != null && name.equals(propval);
+			}
+		}
+
+		if (!found) {
+			mor = null;
+		}
+
+		return mor;
+	}
+	private static boolean typeIsA(String searchType,
+			String foundType) {
+		if(searchType.equals(foundType)) {
+			return true;
+		} else if(searchType.equals("ManagedEntity")) {
+			for(int i = 0; i < meTree.length; ++i) {
+				if(meTree[i].equals(foundType)) {
+					return true;
+				}
+			}
+		} else if(searchType.equals("ComputeResource")) {
+			for(int i = 0; i < crTree.length; ++i) {
+				if(crTree[i].equals(foundType)) {
+					return true;
+				}
+			}
+		} else if(searchType.equals("HistoryCollector")) {
+			for(int i = 0; i < hcTree.length; ++i) {
+				if(hcTree[i].equals(foundType)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public ManagedObjectReference getDatastoreByVM(ManagedObjectReference vmRef)
+	{
+		return getDataStorebyVMMor(vmRef)[0];
+	}
+
+	public    ManagedObjectReference getVMByName(String vmName)
 	{
 		return getVmByVMname(vmName);
 	}
