@@ -34,14 +34,15 @@ public class DeployOneHost extends Thread {
 	private int deployedVM = 0;
 	private Context context;
 	private UserInterface ui;
-	private int flage;
+	private Boolean isLinked;
 
-	public int getFlage() {
-		return flage;
+
+	public Boolean getIsLinked() {
+		return isLinked;
 	}
 
-	public void setFlage(int flage) {
-		this.flage = flage;
+	public void setIsLinked(Boolean isLinked) {
+		this.isLinked = isLinked;
 	}
 
 	public String getSrcVMName() {
@@ -109,7 +110,7 @@ public class DeployOneHost extends Thread {
 	}
 
 	public void DeployOneHost(String srcVMName, String dstHostIp,
-			int numToDeploy, int numStart, int flag) {
+			int numToDeploy, int numStart, Boolean isLinked) {
 
 		ui = UserInterface.getInstance();
 		setUi(ui);
@@ -118,7 +119,7 @@ public class DeployOneHost extends Thread {
 		setNumToDeploy(numToDeploy);
 		setNumStart(numStart);
 		setDeployedVM(0);
-		setFlag(flag);
+		setIsLinked(isLinked);
 
 		try {
 			VCConnection conn = new VCConnection(ui.getVcUrl(),
@@ -135,7 +136,7 @@ public class DeployOneHost extends Thread {
 
 	public void run() {
 
-		if (getFlag == 0) {
+		if (getIsLinked() == false) {
 			try {
 				CloneParam param = new CloneParam();
 				param.setDataCenter("Datacenter");
