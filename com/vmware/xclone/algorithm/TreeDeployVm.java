@@ -1,20 +1,7 @@
-package com.vmware.xclone;
-
-import com.vmware.vim25.*;
-
-import javax.swing.text.html.HTMLDocument.Iterator;
-import javax.xml.ws.*;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSession;
+package com.vmware.xclone.algorithm;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
-import java.lang.reflect.Method;
-import java.net.InetAddress;
-import java.rmi.RemoteException;
-
-import javax.xml.ws.soap.SOAPFaultException;
 
 public class TreeDeployVm {
 

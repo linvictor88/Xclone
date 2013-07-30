@@ -1,4 +1,4 @@
-package com.vmware.xclone.CloningAlgorithms;
+package com.vmware.xclone.algorithm;
 
 import java.util.List;
 
@@ -109,7 +109,7 @@ public class DeployOneHost extends Thread {
 		this.ui = ui;
 	}
 
-	public void DeployOneHost(String srcVMName, String dstHostIp,
+	public DeployOneHost(String srcVMName, String dstHostIp,
 			int numToDeploy, int numStart, Boolean isLinked) {
 
 		ui = UserInterface.getInstance();
@@ -127,7 +127,7 @@ public class DeployOneHost extends Thread {
 
 			conn.connect();
 
-			self.setContext(conn.getContext);
+			self.setContext(conn.getContext());
 
 		} catch (Exception e) {
 			e.printStackTrace();
