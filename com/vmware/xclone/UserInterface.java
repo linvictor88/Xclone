@@ -33,7 +33,7 @@ import javax.xml.ws.soap.SOAPFaultException;
  *acceptlinked   [optional] : Whether accept Linked clone (default: True)
  *isOn           [optional] : Whether Power on the VM after cloning (default: True)
  *algthselect    [optional] : select which algorithm to deploy the VMs [0 | 1 | 2| 3| ...] and default: 0
- *
+ *opselect       [optional] : select which operations (create(default) | start | stop | destroy)
  *Input example: --url 10.117.5.79 --username root --password vmware --datacentername Datacenter --vmname XX 
  *--cloneprefix XX_clone_ --number 100 --targethosts 10.117.4.14,10.117.4.140 --acceptlinked true --ison true --algthselect 1
  */
@@ -55,6 +55,7 @@ private List<String> dstHostList;
 private Boolean acceptLinked;
 private Boolean isOn;
 private int algthSelect;
+private String opselect;
 private static UserInterface instance = null;
 
  
@@ -86,6 +87,7 @@ private void defaultInit() {
 	this.setNumberOfVMs(0);
 	this.setAlgthSelect(0);
 	this.dstHostList = new ArrayList<String>();
+	this.setOpselect(opselect);
 	
 }
 public UserInterface(String[] args) {
@@ -254,5 +256,31 @@ public String getResourcePool() {
 public void setResourcePool(String resourcePool) {
 	this.resourcePool = resourcePool;
 }
+
+
+public String getOpselect() {
+	return opselect;
+}
+
+
+public void setOpselect(String opselect) {
+	this.opselect = opselect;
+}
+
+
+public static UserInterface getInstance() {
+	return instance;
+}
+
+
+public static void setInstance(UserInterface instance) {
+	UserInterface.instance = instance;
+}
+
+
+public static Object getSynclock() {
+	return syncLock;
+}
+
 }
 
