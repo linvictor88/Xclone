@@ -1,21 +1,9 @@
 package com.vmware.xclone;
-
-import com.vmware.vim25.*;
 import com.vmware.xclone.algorithm.*;
-import com.vmware.xclone.managementobjects.*;
 import com.vmware.xclone.basicops.*;
 
-import javax.xml.ws.*;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSession;
-
 import java.util.*;
-import java.lang.reflect.Method;
-import java.net.InetAddress;
-import java.rmi.RemoteException;
-
-import javax.xml.ws.soap.SOAPFaultException;
+import java.util.concurrent.CountDownLatch;
 
 public class Xclones {
 	private UserInterface ui;
@@ -55,22 +43,39 @@ public class Xclones {
 		    		+ "--ison false --algthselect 1 --opselect start";
 		    
 		    String destroyString = "--url 10.117.4.228 --username root --password vmware "
-		    		+ "--datacentername Datacenter --vmname vm_clone --cloneprefix clone_ "
+		    		+ "--datacentername Datacenter --vmname vm_clone --cloneprefix tttclone_ "
 		    		+ "--resourcepool cluster "
-		    		+ "--number 100 --dsthosts 10.117.4.71,10.117.5.148,10.117.7.125,10.117.4.140,10.117.5.78,10.117.4.14 --srchost 10.117.4.140 --acceptlinked true "
+		    		+ "--number 160 --dsthosts 10.117.4.71,10.117.5.148,10.117.7.125,10.117.4.140,10.117.5.78,10.117.4.14 --srchost 10.117.4.140 --acceptlinked true "
 		    		+ "--ison false --algthselect 1 --opselect destroy";
 	
 		    String[] Params = inputString.split("\\s+");
+		
 		    UserInterface ui = UserInterface.getInstance(Params);
 		    String ops = ui.getOpselect();
+		    int perNumDel = 6;
 		    if (ops.equalsIgnoreCase("destroy")) {
-				PoweroffVM offTask = new PoweroffVM(ui.getVmClonePrefix(), 0, ui.getNumberOfVMs());
-				offTask.start();
-				DeleteVM delTask = new DeleteVM(ui.getVmClonePrefix(), 0, ui.getNumberOfVMs());
-				delTask.start();
-		    } else if (ops.equalsIgnoreCase("stop")) {
-					PoweroffVM offTask = new PoweroffVM(ui.getVmClonePrefix(), 0, ui.getNumberOfVMs());
+		    	int i=0;
+		    	int threadNum = (ui.getNumberOfVMs() + perNumDel - 1)/perNumDel;
+		    	CountDownLatch latch = new CountDownLatch(threadNum);
+		    	for(i=0; i<ui.getNumberOfVMs(); i=i+perNumDel)
+		    	{
+					PoweroffVM offTask = new PoweroffVM(ui.getVmClonePrefix(), i, perNumDel);
 					offTask.start();
+		    	}
+		    	latch.wait();
+		    	for(i=0; i<ui.getNumberOfVMs(); i=i+perNumDel)
+		    	{
+					DeleteVM delTask = new DeleteVM(ui.getVmClonePrefix(), i, perNumDel);
+					delTask.start();
+		    	}
+
+		    } else if (ops.equalsIgnoreCase("stop")) {
+		    	int i=0;
+		    	for(i=0; i<ui.getNumberOfVMs(); i=i+perNumDel)
+		    	{
+					PoweroffVM offTask = new PoweroffVM(ui.getVmClonePrefix(), i, perNumDel);
+					offTask.start();
+		    	}
 			} else {
 				switch(ui.getAlgthSelect())
 				{

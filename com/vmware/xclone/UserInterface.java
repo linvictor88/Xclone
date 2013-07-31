@@ -1,18 +1,5 @@
 package com.vmware.xclone;
-import com.vmware.vim25.*;
-import com.vmware.xclone.managementobjects.ManagementObjects;
-
-import javax.xml.ws.*;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSession;
-
 import java.util.*;
-import java.lang.reflect.Method;
-import java.net.InetAddress;
-import java.rmi.RemoteException;
-
-import javax.xml.ws.soap.SOAPFaultException;
 
 /**
  *<pre>
@@ -87,9 +74,9 @@ private void defaultInit() {
 	this.setNumberOfVMs(0);
 	this.setAlgthSelect(0);
 	this.dstHostList = new ArrayList<String>();
-	this.setOpselect(opselect);
-	
+	this.setOpselect("create");
 }
+
 public UserInterface(String[] args) {
 	
 	
@@ -98,6 +85,7 @@ public UserInterface(String[] args) {
 		    		+ "--resourcepool cluster"
 		    		+ "--number 20 --dsthosts 10.117.4.14,10.117.4.140 --srchost 10.117.4.140 --acceptlinked true "
 		    		+ "--ison true --algthselect 1";**/
+	this.defaultInit();
     int ai = 0;
     String param = "";
     String val = "";
