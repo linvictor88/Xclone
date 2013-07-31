@@ -158,6 +158,9 @@ public UserInterface(String[] args) {
          }else if (param.equalsIgnoreCase("--algthselect") && !val.startsWith("--") &&
                  !val.isEmpty()) {
         	 this.setAlgthSelect(Integer.parseInt(val));
+         } else if (param.equalsIgnoreCase("--opselect") && !val.startsWith("--") &&
+                 !val.isEmpty()) {
+        	 this.setOpselect(val);
          }
        val = "";
        ai += 2;

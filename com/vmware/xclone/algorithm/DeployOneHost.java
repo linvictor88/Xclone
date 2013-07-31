@@ -2,8 +2,6 @@ package com.vmware.xclone.algorithm;
 
 import java.util.List;
 
-import com.sun.jndi.url.corbaname.corbanameURLContextFactory;
-import com.sun.org.apache.xpath.internal.axes.SelfIteratorNoPredicate;
 import com.vmware.xclone.basicops.CloneParam;
 import com.vmware.xclone.basicops.VCConnection;
 import com.vmware.vim25.*;

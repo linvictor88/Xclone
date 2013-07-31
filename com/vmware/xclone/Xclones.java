@@ -64,29 +64,14 @@ public class Xclones {
 		    UserInterface ui = UserInterface.getInstance(Params);
 		    String ops = ui.getOpselect();
 		    if (ops.equalsIgnoreCase("destroy")) {
-                int i=0;
-				for (i=0; i<ui.getNumberOfVMs(); i++) {
-                    String vmname = ui.getVmClonePrefix() + String.format("%03d", i);
-					PoweroffVM offTask = new PoweroffVM(vmname);
-					offTask.start();
-					i++;
-				}
-				for (i=0; i<ui.getNumberOfVMs(); i++) {
-                    String vmname = ui.getVmClonePrefix() + String.format("%03d", i);
-					DeleteVM offTask = new DeleteVM(vmname);
-					offTask.start();
-					i++;
-				}
+				PoweroffVM offTask = new PoweroffVM(ui.getVmClonePrefix(), 0, ui.getNumberOfVMs());
+				offTask.start();
+				DeleteVM delTask = new DeleteVM(ui.getVmClonePrefix(), 0, ui.getNumberOfVMs());
+				delTask.start();
 		    } else if (ops.equalsIgnoreCase("stop")) {
-                int i=0;
-				for (i=0; i<ui.getNumberOfVMs(); i++) {
-                    String vmname = ui.getVmClonePrefix() + String.format("%03d", i);
-					PoweroffVM offTask = new PoweroffVM(vmname);
+					PoweroffVM offTask = new PoweroffVM(ui.getVmClonePrefix(), 0, ui.getNumberOfVMs());
 					offTask.start();
-					i++;
-				}
-		    	
-		    } else {
+			} else {
 				switch(ui.getAlgthSelect())
 				{
 					case 1: 
