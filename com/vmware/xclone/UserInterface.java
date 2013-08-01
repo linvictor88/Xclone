@@ -1,32 +1,6 @@
 package com.vmware.xclone;
 import java.util.*;
 
-/**
- *<pre>
- *UserInterface
- *
- *This sample UserInterface
- *
- *<b>Parameters:</b>
- *url            [required] : url of the web service.
- *username       [optional] : username for the authentication (default: root)
- *password       [optional] : password for the authentication (default: vmware)
- *datacentername [optional] : name of the datacenter (default: Datacenter)
- *vmname         [required] : Name of the virtual machine
- *cloneprefix    [required] : prefix of the cloned virtual machine
- *number         [required] : the number of cloned virtual machines
- *srchosts       [required] : the Ip of src host
- *dsthosts       [required] : the Ip of all dst hosts
- *acceptlinked   [optional] : Whether accept Linked clone (default: True)
- *isOn           [optional] : Whether Power on the VM after cloning (default: True)
- *algthselect    [optional] : select which algorithm to deploy the VMs [0 | 1 | 2| 3| ...] and default: 0
- *opselect       [optional] : select which operations (create(default) | start | stop | destroy)
- *Input example: --url 10.117.5.79 --username root --password vmware --datacentername Datacenter --vmname XX 
- *--cloneprefix XX_clone_ --number 100 --targethosts 10.117.4.14,10.117.4.140 --acceptlinked true --ison true --algthselect 1
- */
-
-
-
 public class UserInterface {
 	
 private String vcUrl;
@@ -48,7 +22,6 @@ private static UserInterface instance = null;
  
 
 private final static Object syncLock = new Object();  
-
 public  static UserInterface getInstance(String[] args)
 {
 
@@ -72,19 +45,12 @@ private void defaultInit() {
 	this.setAcceptLinked(true);
 	this.setIsOn(true);
 	this.setNumberOfVMs(0);
-	this.setAlgthSelect(0);
+	this.setAlgthSelect(1);
 	this.dstHostList = new ArrayList<String>();
 	this.setOpselect("create");
 }
 
 public UserInterface(String[] args) {
-	
-	
-	/**		    String inputString = "Input example: --url 10.117.4.228 --username root --password vmware "
-		    		+ "--datacentername Datacenter --vmname vm_clone --cloneprefix _clone_ "
-		    		+ "--resourcepool cluster"
-		    		+ "--number 20 --dsthosts 10.117.4.14,10.117.4.140 --srchost 10.117.4.140 --acceptlinked true "
-		    		+ "--ison true --algthselect 1";**/
 	this.defaultInit();
     int ai = 0;
     String param = "";
@@ -154,11 +120,11 @@ public UserInterface(String[] args) {
        ai += 2;
     }   
     
-    if(this.getVcUrl() == null || this.getVmPath() == null || this.getVmClonePrefix() == null || this.getResourcePool()==null ||
+    if(this.getVcUrl() == null || this.getVmPath() == null || this.getVmClonePrefix() == null  ||
        this.getNumberOfVMs() == 0 || this.getDstHostList() == null || this.getSrcHost() == null) 
     {
        throw new IllegalArgumentException(
-          "Expected --url, --vmname, --cloneprefix, --number, --srchosts, --dsthosts arguments.");
+          "Expected --url, --vmname, --cloneprefix, --number, --srchost, --dsthosts arguments.");
     }	
 }
 
