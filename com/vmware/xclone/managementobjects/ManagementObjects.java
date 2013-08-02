@@ -22,12 +22,14 @@ public class ManagementObjects {
 	//get the dataStore By Name;
 	//get the dataStore By Host
 	//get the dataStore 
-	//private static Map<String,String> dataStoreList; //name->Object map
-	//private static Map<String,ManagedObjectReference> vmList; //name->Object map
-	//private static String vmClonePrefix;
+	//public static Map<String,String> dataStoreList; //name->Object map
+	//public static Map<String,ManagedObjectReference> vmList; //name->Object map
+	//public static String vmClonePrefix;
 
-	//	private static  String vmName;
-	private static String[] meTree = {
+	
+	
+	//	public static  String vmName;
+	public static String[] meTree = {
 		"ManagedEntity",
 		"ComputeResource",
 		"ClusterComputeResource",
@@ -37,83 +39,95 @@ public class ManagementObjects {
 		"ResourcePool",
 		"VirtualMachine"
 	};
-	private static String[] crTree = {
+	public static String[] crTree = {
 		"ComputeResource",
 		"ClusterComputeResource"
 	};
-	private static String[] hcTree = {
+	public static String[] hcTree = {
 		"HistoryCollector",
 		"EventHistoryCollector",
 		"TaskHistoryCollector"
 	};
-	private static VCConnection vcConn;
+	public   VCConnection vcConn;
 
 
-	private static  ManagedObjectReference propCollectorRef;
+	public    ManagedObjectReference propCollectorRef;
 
-	private static  ManagedObjectReference rootRef;
+	public    ManagedObjectReference rootRef;
 
-	private static  VimService vimService;
+	public    VimService vimService;
 
-	private static  VimPortType vimPort;
-	public static VimPortType getVimPort() {
+	public    VimPortType vimPort;
+	public   VimPortType getVimPort() {
 		return vimPort;
 	}
 
-	public static void setVimPort(VimPortType vimPort) {
-		ManagementObjects.vimPort = vimPort;
+	public   void setVimPort(VimPortType vimPort) {
+		this.vimPort = vimPort;
 	}
 
 
 
-	private static ServiceContent serviceContent;
+	public   ServiceContent serviceContent;
 
 
 
-	private List<String> vmList;
+	public List<String> vmList;
 
 
-//	private static  ManagementObjects managementObject=null;
+//	public static  ManagementObjects managementObject=null;
 
 
-	private final static Object syncLock = new Object();  
+	public final static Object syncLock = new Object();  
 
-	public static ManagedObjectReference getPropCollectorRef() {
+	public   ManagedObjectReference getPropCollectorRef() {
 		return propCollectorRef;
 	}
 
-	public static void setPropCollectorRef(ManagedObjectReference propCollectorRef) {
-		ManagementObjects.propCollectorRef = propCollectorRef;
+	public   void setPropCollectorRef(ManagedObjectReference propCollectorRef) {
+		this.propCollectorRef = propCollectorRef;
 	}
 
-	public static ManagedObjectReference getRootRef() {
+	public   ManagedObjectReference getRootRef() {
 		return rootRef;
 	}
 
-	public static void setRootRef(ManagedObjectReference rootRef) {
-		ManagementObjects.rootRef = rootRef;
+	public   void setRootRef(ManagedObjectReference rootRef) {
+		this.rootRef = rootRef;
 	}
 
-	public static VimService getVimService() {
+	public   VimService getVimService() {
 		return vimService;
 	}
 
-	public static void setVimService(VimService vimService) {
-		ManagementObjects.vimService = vimService;
+	public   void setVimService(VimService vimService) {
+		this.vimService = vimService;
 	}
 
-	public static ServiceContent getServiceContent() {
+	public   ServiceContent getServiceContent() {
 		return serviceContent;
 	}
 
-	public static void setServiceContent(ServiceContent serviceContent) {
-		ManagementObjects.serviceContent = serviceContent;
+	public   void setServiceContent(ServiceContent serviceContent) {
+		this.serviceContent = serviceContent;
 	}
 
 
-	public ManagementObjects()
+	public ManagementObjects(VCConnection vcConn)
 	{
+	try {
+			
+			this.vcConn = vcConn;
+			vimService = vcConn.getVimService();
+			rootRef = vcConn.getRootRef();
+			propCollectorRef = vcConn.getPropRef();
+			vimPort = vcConn.getVimPort();
+			serviceContent = vcConn.getServiceContent();
 
+			vmList = new ArrayList<String>();
+		} catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 
  
@@ -186,7 +200,7 @@ public class ManagementObjects {
 				List<ManagedObjectReference> datastoreRef = getDatastoreByHost(hostRef);
 				ManagedObjectReference resPoolRef = getRespool( targetPool);
 				relocSpec.setHost(hostRef);
-				relocSpec.setDatastore(datastoreRef.get(2));
+				relocSpec.setDatastore(datastoreRef.get(1));
 				relocSpec.setPool(resPoolRef);
 			}
 
@@ -232,7 +246,7 @@ public class ManagementObjects {
 		}
 		return null;
 	}
-	private   List<PropertySpec> buildPropertySpecArray(String[][] typeinfo) {
+	public   List<PropertySpec> buildPropertySpecArray(String[][] typeinfo) {
 		// Eliminate duplicates
 		HashMap<String, Set> tInfo = new HashMap<String, Set>();
 		for(int ti = 0; ti < typeinfo.length; ++ti) {
@@ -269,7 +283,7 @@ public class ManagementObjects {
 
 		return pSpecs;
 	}
-	private  List<ObjectContent>    getContentsRecursively(ManagedObjectReference collector,
+	public  List<ObjectContent>    getContentsRecursively(ManagedObjectReference collector,
 			ManagedObjectReference root,
 			String[][] typeinfo, boolean recurse)
 					throws Exception {
@@ -308,7 +322,7 @@ public class ManagementObjects {
 
 		return listobjcont;
 	}
-	private  ManagedObjectReference getDecendentMoRef(ManagedObjectReference root,
+	public  ManagedObjectReference getDecendentMoRef(ManagedObjectReference root,
 			String type,
 			String name)
 					throws Exception {
@@ -350,7 +364,7 @@ public class ManagementObjects {
 
 		return mor;
 	}
-	private static boolean typeIsA(String searchType,
+	public static boolean typeIsA(String searchType,
 			String foundType) {
 		if(searchType.equals(foundType)) {
 			return true;
@@ -528,7 +542,7 @@ public class ManagementObjects {
 
 	}
 
-	private  DatastoreSummary getDataStoreSummary(ManagedObjectReference dataStore)
+	public  DatastoreSummary getDataStoreSummary(ManagedObjectReference dataStore)
 			throws Exception {
 		DatastoreSummary dataStoreSummary = new DatastoreSummary();
 		PropertySpec propertySpec = new PropertySpec();
@@ -559,13 +573,13 @@ public class ManagementObjects {
 	}
 
 
-	private   SelectionSpec getSelectionSpec(String name) {
+	public   SelectionSpec getSelectionSpec(String name) {
 		SelectionSpec genericSpec = new SelectionSpec();
 		genericSpec.setName(name);
 		return genericSpec;
 	}
 
-	private   List<SelectionSpec> buildFullTraversal() {
+	public   List<SelectionSpec> buildFullTraversal() {
 		// Terminal traversal specs
 
 		// RP -> VM
@@ -675,7 +689,7 @@ public class ManagementObjects {
 
 		return resultspec;
 	}
-	private  List<DynamicProperty> getDynamicProarray(ManagedObjectReference ref,
+	public  List<DynamicProperty> getDynamicProarray(ManagedObjectReference ref,
 			String type,
 			String propertyString)
 					throws Exception {
@@ -763,7 +777,7 @@ public class ManagementObjects {
 	}
 
 
-	private   TraversalSpec getHostSystemTraversalSpec() {
+	public   TraversalSpec getHostSystemTraversalSpec() {
 		// Create a traversal spec that starts from the 'root' objects
 		// and traverses the inventory tree to get to the Host system.
 		// Build the traversal specs bottoms up
@@ -810,7 +824,7 @@ public class ManagementObjects {
 		return traversalSpec;
 	}
 
-	private  ObjectContent[] getObjectProperties(ManagedObjectReference mobj,
+	public  ObjectContent[] getObjectProperties(ManagedObjectReference mobj,
 			String[] properties)
 					throws Exception {
 		if (mobj == null) {
@@ -843,7 +857,7 @@ public class ManagementObjects {
 	 * @param parameterTypes Array of Class objects for the parameter types
 	 * @return true if the method exists, false otherwise
 	 */
-	private  boolean methodExists(Object obj,
+	public  boolean methodExists(Object obj,
 			String methodName,
 			Class[] parameterTypes) {
 		boolean exists = false;
@@ -860,7 +874,7 @@ public class ManagementObjects {
 		return exists;
 	}
 
-	private  Object getDynamicProperty(ManagedObjectReference mor,
+	public  Object getDynamicProperty(ManagedObjectReference mor,
 			String propertyName)
 					throws Exception {
 		ObjectContent[] objContent = getObjectProperties(mor, new String[]{propertyName});
@@ -914,7 +928,7 @@ public class ManagementObjects {
 		return propertyValue;
 	}
 
-	private   ManagedObjectReference getVmByVMname(String vmName) {
+	public   ManagedObjectReference getVmByVMname(String vmName) {
 		ManagedObjectReference retVal = null;
 
 
@@ -966,10 +980,113 @@ public class ManagementObjects {
 		}
 		return retVal;
 	}
+	
+	public List<String> getVMNames()
+	{
+		
+		List<String> names = new ArrayList<String>();
+		
+ 
+
+		ManagedObjectReference rootFolder = serviceContent.getRootFolder();
+		try {
+			TraversalSpec tSpec = getVMTraversalSpec();
+			// Create Property Spec
+			PropertySpec propertySpec = new PropertySpec();
+			propertySpec.setAll(Boolean.FALSE);
+			propertySpec.getPathSet().add("name");
+			propertySpec.setType("VirtualMachine");
+
+			// Now create Object Spec
+			ObjectSpec objectSpec = new ObjectSpec();
+			objectSpec.setObj(rootFolder);
+			objectSpec.setSkip(Boolean.TRUE);
+			objectSpec.getSelectSet().add(tSpec);
+
+			// Create PropertyFilterSpec using the PropertySpec and ObjectPec
+			// created above.et
+			PropertyFilterSpec propertyFilterSpec = new PropertyFilterSpec();
+			propertyFilterSpec.getPropSet().add(propertySpec);
+			propertyFilterSpec.getObjectSet().add(objectSpec);
+
+			List<PropertyFilterSpec> listpfs = new ArrayList<PropertyFilterSpec>(1);
+			listpfs.add(propertyFilterSpec);
+			List<ObjectContent> listobjcont = retrievePropertiesAllObjects(listpfs);
+
+			if (listobjcont != null) {
+				for (ObjectContent oc : listobjcont) {
+ 					String vmnm = null;
+					List<DynamicProperty> dps = oc.getPropSet();
+					if (dps != null) {
+						for (DynamicProperty dp : dps) {
+							vmnm = (String) dp.getVal();
+						}
+					}
+					
+					names.add(vmnm);
+					 
+				}
+			}
+		} catch (SOAPFaultException sfe) {
+			sfe.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return names;
+		
+	}
+
+	
+	public   List<ManagedObjectReference> getVm() {
+	
+		List<ManagedObjectReference>  vms = new ArrayList<ManagedObjectReference>();
+		
+	 
 
 
+		ManagedObjectReference rootFolder = serviceContent.getRootFolder();
+		try {
+			TraversalSpec tSpec = getVMTraversalSpec();
+			// Create Property Spec
+			PropertySpec propertySpec = new PropertySpec();
+			propertySpec.setAll(Boolean.FALSE);
+			propertySpec.getPathSet().add("name");
+			propertySpec.setType("VirtualMachine");
 
-	private    List<ObjectContent> retrievePropertiesAllObjects(List<PropertyFilterSpec> listpfs)
+			// Now create Object Spec
+			ObjectSpec objectSpec = new ObjectSpec();
+			objectSpec.setObj(rootFolder);
+			objectSpec.setSkip(Boolean.TRUE);
+			objectSpec.getSelectSet().add(tSpec);
+
+			// Create PropertyFilterSpec using the PropertySpec and ObjectPec
+			// created above.et
+			PropertyFilterSpec propertyFilterSpec = new PropertyFilterSpec();
+			propertyFilterSpec.getPropSet().add(propertySpec);
+			propertyFilterSpec.getObjectSet().add(objectSpec);
+
+			List<PropertyFilterSpec> listpfs = new ArrayList<PropertyFilterSpec>(1);
+			listpfs.add(propertyFilterSpec);
+			List<ObjectContent> listobjcont = retrievePropertiesAllObjects(listpfs);
+
+			if (listobjcont != null) {
+				for (ObjectContent oc : listobjcont) {
+					ManagedObjectReference mr = oc.getObj();
+ 					 
+						vms.add(mr);
+					}
+				 
+			}
+		} catch (SOAPFaultException sfe) {
+			sfe.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return vms;
+	}
+
+	public    List<ObjectContent> retrievePropertiesAllObjects(List<PropertyFilterSpec> listpfs)
 			throws Exception {
 
 		RetrieveOptions propObjectRetrieveOpts = new RetrieveOptions();
@@ -1010,7 +1127,7 @@ public class ManagementObjects {
 	}
 
 
-	private    TraversalSpec getVMTraversalSpec() {
+	public    TraversalSpec getVMTraversalSpec() {
 		// Create a traversal spec that starts from the 'root' objects
 		// and traverses the inventory tree to get to the VirtualMachines.
 		// Build the traversal specs bottoms up
@@ -1073,7 +1190,7 @@ public class ManagementObjects {
 	 * @param vmmor the vmmor
 	 * @return the data storeby vm mor
 	 */
-	private  ManagedObjectReference[] getDataStorebyVMMor(ManagedObjectReference vmmor) {
+	public  ManagedObjectReference[] getDataStorebyVMMor(ManagedObjectReference vmmor) {
 		ManagedObjectReference[] retVal = null;
 		try {
 			// Create Property Spec

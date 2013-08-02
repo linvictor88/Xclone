@@ -616,7 +616,7 @@ public class LinkedCloneVm {
 								.value());
 					}
 					VirtualMachineCloneSpec cloneSpec = new VirtualMachineCloneSpec();
-					cloneSpec.setPowerOn(false);
+					cloneSpec.setPowerOn(true);
 					cloneSpec.setTemplate(false);
 					cloneSpec.setLocation(rSpec);
 					cloneSpec.setSnapshot(snapMOR);

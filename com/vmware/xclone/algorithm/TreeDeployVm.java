@@ -17,11 +17,13 @@ import java.rmi.RemoteException;
 
 import javax.xml.ws.soap.SOAPFaultException;
 
+
 public class TreeDeployVm {
 
 	private Map<String, String> srcHostVm;
 	private List<String> dstHostList;
 	private int numOfVm;
+	private int sumOfVm;
 	private String prefix;
 	private String datacenter;
 
@@ -33,15 +35,24 @@ public class TreeDeployVm {
 		this.srcHostVm = new HashMap<String, String>();
 		srcHostVm.put(ui.getSrcHost(), ui.getVmPath());
 		this.dstHostList = new ArrayList<String>(ui.getDstHostList());
+		this.sumOfVm = ui.getNumberOfVMs() +1;
 		this.numOfVm = ui.getNumberOfVMs() / ui.getDstHostList().size() + 1;
 		this.prefix = ui.getVmClonePrefix();
 		this.datacenter = ui.getDataCenter();
+		
+		for(int i=0;i<dstHostList.size();i++){
+			if(dstHostList.get(i)==ui.getSrcHost()){
+				dstHostList.remove(i);
+				break;
+			}
+		}
 	}
 
 	public void DeployVmFromList() {
 
 		try {
 			int numStart = 0;
+
 			while (!dstHostList.isEmpty()) {
 				int srcNum = srcHostVm.size();
 				int dstNum = dstHostList.size();
@@ -53,11 +64,11 @@ public class TreeDeployVm {
 
 				for (Map.Entry<String, String> deployStr : srcHostVm.entrySet()) {
 					DeployOneHost deployTask = new DeployOneHost(
-							deployStr.getValue(), dstHostList.get(i), numOfVm,
-							numStart, false,latch);
+							deployStr.getValue(), dstHostList.get(i), 1,
+							numStart, false, latch);
 					deployTask.start();
 					i++;
-					numStart += numOfVm;
+					numStart++;
 					if (i == tmpDeployNum) {
 						break;
 					}
@@ -67,7 +78,7 @@ public class TreeDeployVm {
 				latch.await();
 				for (int j = 0; j < i; j++) {
 					srcHostVm.put(dstHostList.get(0), datacenter + "/vm/"
-							+ CreateVMName(tmpStart + numOfVm * j));
+							+ CreateVMName(tmpStart++));
 					dstHostList.remove(0);
 				}
 			}
@@ -75,13 +86,17 @@ public class TreeDeployVm {
 			int i = 0;
 			CountDownLatch latch = new CountDownLatch(srcHostVm.size());
 			for (Map.Entry<String, String> deployStr : srcHostVm.entrySet()) {
+				if(numStart + numOfVm > sumOfVm){
+					numOfVm = sumOfVm - numStart;
+				}
 				DeployOneHost deployTask = new DeployOneHost(
 						deployStr.getValue(), deployStr.getKey(), numOfVm - 1,
-						i * numOfVm + 1, true, latch);
+						numStart, true, latch);
 				deployTask.start();
 				i++;
+				numStart += numOfVm -1;
 			}
-
+			latch.await();
 		} catch (Exception e) {
 			// TODO: handle exception
 		}

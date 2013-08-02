@@ -19,7 +19,73 @@ private int algthSelect;
 private String opselect;
 private static UserInterface instance = null;
 
- 
+/**
+ *<pre>
+ *Xclone
+ *
+ *Fastest VM Provision
+ *
+ *<b>Parameters:</b>
+ *url            [required] : url of the web service.
+ *username       [optional] : username for the authentication (default: root)
+ *password       [optional] : password for the authentication (default: vmware)
+ *datacentername [optional] : name of the datacenter (default: Datacenter)
+ *resourcepool   [optional] : name of the resource pool in the datacenter (default: cluster)
+ *vmname         [required] : Name of the virtual machine
+ *cloneprefix    [required] : prefix of the cloned virtual machine
+ *number         [required] : the number of cloned virtual machines
+ *srchost        [required] : the Ip of src host
+ *dsthosts       [required] : the Ip of all dst hosts
+ *acceptlinked   [optional] : Whether accept Linked clone (default: True)
+ *isOn           [optional] : Whether Power on the VM after cloning (default: True)
+ *algthselect    [optional] : select which algorithm to deploy the VMs [0 | 1 | 2| 3| ...] and default: 1
+ *opselect       [optional] : select which operations (create(default) | start | stop | destroy)
+ *<b>Example:</b>
+ *Create example:
+ *<<                
+ *                    "--url 10.117.4.228 --username root --password vmware "
+ *		    		+ "--datacentername Datacenter --vmname vm_clone --cloneprefix clone_ "
+ *		    		+ "--resourcepool cluster "
+ *		    		+ "--number 100 --dsthosts 10.117.4.71,10.117.5.148,10.117.7.125,10.117.4.140,10.117.5.78,10.117.4.14 --srchost 10.117.4.140 --acceptlinked true "
+ *		    		+ "--ison false --algthselect 1"
+ *>>
+ *Stop VMs example:
+ *<<
+ *                    "--url 10.117.4.228 --username root --password vmware "
+ *     	    		+ "--datacentername Datacenter --vmname vm_clone --cloneprefix clone_ "
+ *		    		+ "--resourcepool cluster "
+ *		    		+ "--number 100 --dsthosts 10.117.4.71,10.117.5.148,10.117.7.125,10.117.4.140,10.117.5.78,10.117.4.14 --srchost 10.117.4.140 --acceptlinked true "
+ *		    		+ "--ison false --algthselect 1 --opselect stop"
+ *>>
+ *Destroy VMs example:
+ *<<
+ *                    "--url 10.117.4.228 --username root --password vmware "
+ *		    		+ "--datacentername Datacenter --vmname vm_clone --cloneprefix tttclone_ "
+ *		    		+ "--resourcepool cluster "
+ *		    		+ "--number 160 --dsthosts 10.117.4.71,10.117.5.148,10.117.7.125,10.117.4.140,10.117.5.78,10.117.4.14 --srchost 10.117.4.140 --acceptlinked true "
+ *		    		+ "--ison false --algthselect 1 --opselect destroy";
+ *>>
+ *</pre>
+ */
+private static void printUsage() {
+	System.out.println("*Xclone \n");
+	System.out.println("*Fastest VM Provision\n");
+	System.out.println("*<b>Parameters:</b>\n");
+	System.out.println("*url            [required] : url of the web service.\n");
+	System.out.println("*username       [optional] : username for the authentication (default: root) \n");
+	System.out.println("*password       [optional] : password for the authentication (default: vmware)\n");
+	System.out.println("*datacentername [optional] : name of the datacenter (default: Datacenter)\n");
+	System.out.println("*resourcepool   [optional] : name of the resource pool in the datacenter (default: cluster)");
+	System.out.println("*vmname         [required] : Name of the virtual machine");
+	System.out.println("*cloneprefix    [required] : prefix of the cloned virtual machine");		
+	System.out.println("*number         [required] : the number of cloned virtual machines");	
+	System.out.println("*srchost        [required] : the Ip of src host");
+	System.out.println("*dsthosts       [required] : the Ip of all dst hosts");
+    System.out.println("*acceptlinked   [optional] : Whether accept Linked clone (default: True)");
+	System.out.println("*isOn           [optional] : Whether Power on the VM after cloning (default: True)");
+	System.out.println("*algthselect    [optional] : select which algorithm to deploy the VMs [0 | 1 | 2| 3| ...] and default: 1\n");	
+	System.out.println("*opselect       [optional] : select which operations (create(default) | start | stop | destroy)\n");
+}
 
 private final static Object syncLock = new Object();  
 public  static UserInterface getInstance(String[] args)
@@ -123,8 +189,8 @@ public UserInterface(String[] args) {
     if(this.getVcUrl() == null || this.getVmPath() == null || this.getVmClonePrefix() == null  ||
        this.getNumberOfVMs() == 0 || this.getDstHostList() == null || this.getSrcHost() == null) 
     {
-       throw new IllegalArgumentException(
-          "Expected --url, --vmname, --cloneprefix, --number, --srchost, --dsthosts arguments.");
+    	printUsage();
+       throw new IllegalArgumentException();
     }	
 }
 

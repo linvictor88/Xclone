@@ -51,7 +51,9 @@ public class DeployOneHost extends Thread {
 		setNumStart(numStart);
 		setIsLinked(isLinked);
 		this.latch = latch;
+	}
 
+	public void run() {
 		try {
 			conn = new VCConnection(ui.getVcUrl(), ui.getUserName(),
 					ui.getPassWord());
@@ -63,10 +65,6 @@ public class DeployOneHost extends Thread {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	public void run() {
-
 		ManagementObjects managementObject = new ManagementObjects(ui, conn);
 
 		if (getIsLinked() == false) {
@@ -87,7 +85,7 @@ public class DeployOneHost extends Thread {
 				List<String> names = managementObject
 						.getDatastoreNameByHostIp(dstHostIp);
 
-				new CloneVM(srcVMName, CreateVMName(), dstHostIp, names.get(2),
+				new CloneVM(srcVMName, CreateVMName(), dstHostIp, names.get(1),
 						ui.getResourcePool(),ui.getDataCenter(), ui.getIsOn(), conn,managementObject).doClone();
 
 			} catch (Exception e) {

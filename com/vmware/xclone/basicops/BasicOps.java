@@ -6,8 +6,6 @@ import java.util.List;
 
 import javax.xml.ws.soap.SOAPFaultException;
 
-import com.vmware.vim25.ArrayOfManagedObjectReference;
-import com.vmware.vim25.DynamicProperty;
 import com.vmware.vim25.ManagedObjectReference;
 import com.vmware.vim25.ObjectSpec;
 import com.vmware.vim25.ObjectUpdate;
@@ -17,15 +15,8 @@ import com.vmware.vim25.PropertyChangeOp;
 import com.vmware.vim25.PropertyFilterSpec;
 import com.vmware.vim25.PropertyFilterUpdate;
 import com.vmware.vim25.PropertySpec;
-import com.vmware.vim25.ServiceContent;
-import com.vmware.vim25.TaskInfoState;
 import com.vmware.vim25.UpdateSet;
 import com.vmware.vim25.VimPortType;
-import com.vmware.vim25.VimService;
-import com.vmware.vim25.VirtualMachineCloneSpec;
-import com.vmware.vim25.VirtualMachineRelocateSpec;
-import com.vmware.xclone.UserInterface;
-import com.vmware.xclone.managementobjects.ManagementObjects;
 
 public class BasicOps
 {
